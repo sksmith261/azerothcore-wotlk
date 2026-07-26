@@ -2214,6 +2214,19 @@ SpellSpecificType SpellInfo::LoadSpellSpecific() const
                         return SPELL_SPECIFIC_NORMAL;
                     [[fallthrough]]; /// @todo: Not sure whether the fallthrough was a mistake (forgetting a break) or intended. This should be double-checked.
                 case SPELL_AURA_TRACK_RESOURCES:
+                    // Local change: let the two gathering trackers coexist, so a character
+                    // with both professions can see ore and herbs at once. Same workaround
+                    // shape as Gas Cloud Tracking above — exempt them from the TRACKER
+                    // specific, which IsAuraExclusiveBySpecificWith uses to make trackers
+                    // mutually exclusive.
+                    //
+                    // Nothing else has to change: PLAYER_TRACK_RESOURCES is a bitmask and
+                    // AuraEffect::HandleAuraTrackResources already sets it with SetFlag
+                    // (bitwise OR), so two simultaneous auras light up two bits correctly.
+                    // Exclusivity was policy here, not a storage limit.
+                    if (Id == 2580 || Id == 2383) // Find Minerals, Find Herbs
+                        return SPELL_SPECIFIC_NORMAL;
+                    [[fallthrough]];
                 case SPELL_AURA_TRACK_STEALTHED:
                     return SPELL_SPECIFIC_TRACKER;
                 default:
