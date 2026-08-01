@@ -4488,6 +4488,18 @@ AllowTwoSide.Interaction.Channel = 0
 AllowTwoSide.Interaction.Group = 0
 
 #
+#    AllowTwoSide.Interaction.Duel
+#        Description: Allow duels between factions. Only has an effect where
+#                     AllowTwoSide.Interaction.Group is enabled: that option spoofs
+#                     same-group opposite-faction players to the client as own-faction,
+#                     which is what lets a duel request land on them in the first place.
+#                     Set to 0 to keep cross-faction parties without cross-faction duels.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+AllowTwoSide.Interaction.Duel = 1
+
+#
 #    AllowTwoSide.Interaction.Guild
 #        Description: Allow guild joining between factions.
 #        Default:     0 - (Disabled)

@@ -208,6 +208,9 @@ void WorldConfig::BuildConfigCache()
     SetConfigValue<bool>(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT, "AllowTwoSide.Interaction.Chat", false);
     SetConfigValue<bool>(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL, "AllowTwoSide.Interaction.Channel", false);
     SetConfigValue<bool>(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP, "AllowTwoSide.Interaction.Group", false);
+    // Defaults to true so that leaving this option out of a config keeps stock behaviour:
+    // cross-faction duels were always possible once the group spoof made the target castable.
+    SetConfigValue<bool>(CONFIG_ALLOW_TWO_SIDE_INTERACTION_DUEL, "AllowTwoSide.Interaction.Duel", true);
     SetConfigValue<bool>(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD, "AllowTwoSide.Interaction.Guild", false);
     SetConfigValue<bool>(CONFIG_ALLOW_TWO_SIDE_INTERACTION_ARENA, "AllowTwoSide.Interaction.Arena", false);
     SetConfigValue<bool>(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION, "AllowTwoSide.Interaction.Auction", false);

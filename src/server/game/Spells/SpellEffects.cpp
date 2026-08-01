@@ -4127,6 +4127,16 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     if (caster->duel || target->duel || !target->GetSocial() || target->GetSocial()->HasIgnore(caster->GetGUID()))
         return;
 
+    // Opposite-faction players are only reachable by a duel request at all because
+    // AllowTwoSide.Interaction.Group spoofs same-group enemies to the client as own-faction
+    // (see Unit::BuildValuesUpdate), which makes this friendly-target spell land on them.
+    // Servers that want cross-faction parties without cross-faction duels turn this off.
+    if (caster->GetTeamId() != target->GetTeamId() && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_DUEL))
+    {
+        SendCastResult(SPELL_FAILED_BAD_TARGETS);
+        return;
+    }
+
     // Players can only fight a duel in zones with this flag
     AreaTableEntry const* casterAreaEntry = sAreaTableStore.LookupEntry(caster->GetAreaId());
     if (casterAreaEntry && !(casterAreaEntry->flags & AREA_FLAG_ALLOW_DUELS))
