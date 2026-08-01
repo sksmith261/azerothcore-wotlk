@@ -522,6 +522,10 @@ namespace lfg
         // LFGHandler
         /// Get locked dungeons
         LfgLockMap const& GetLockedDungeons(ObjectGuid guid);
+        /// Expands a random dungeon id into the dungeons it can roll; id 0 returns them all
+        LfgDungeonSet const& GetDungeonsByRandom(uint32 randomdungeon);
+        /// Normal, heroic, raid or random
+        LfgType GetDungeonType(uint32 dungeon);
         /// Returns current lfg status
         LfgUpdateData GetLfgStatus(ObjectGuid guid);
         /// Checks if Seasonal dungeon is active
@@ -609,8 +613,6 @@ namespace lfg
 
         // Generic
         LFGQueue& GetQueue(ObjectGuid guid);
-        LfgDungeonSet const& GetDungeonsByRandom(uint32 randomdungeon);
-        LfgType GetDungeonType(uint32 dungeon);
 
         void SendLfgBootProposalUpdate(ObjectGuid guid, LfgPlayerBoot const& boot);
         void SendLfgJoinResult(ObjectGuid guid, LfgJoinResultData const& data);
