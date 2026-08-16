@@ -323,10 +323,13 @@ public:
                 return;
             }
 
-            Creature* Fandral = player->FindNearestCreature(C_FANDRAL_STAGHELM, 100.0f);
-            Creature* Arygos = player->FindNearestCreature(C_ARYGOS, 100.0f);
-            Creature* Caelestrasz = player->FindNearestCreature(C_CAELESTRASZ, 100.0f);
-            Creature* Merithra = player->FindNearestCreature(C_MERITHRA, 100.0f);
+            // Search relative to Anachronos, not the player: the actors spread up to ~85y
+            // apart during the cinematic, so a player-relative 100y search can lose one
+            // and stall the event permanently depending on where the player stands.
+            Creature* Fandral = me->FindNearestCreature(C_FANDRAL_STAGHELM, 150.0f);
+            Creature* Arygos = me->FindNearestCreature(C_ARYGOS, 150.0f);
+            Creature* Caelestrasz = me->FindNearestCreature(C_CAELESTRASZ, 150.0f);
+            Creature* Merithra = me->FindNearestCreature(C_MERITHRA, 150.0f);
 
             if (!Fandral || !Arygos || !Caelestrasz || !Merithra)
                 return;
@@ -562,7 +565,12 @@ public:
                         break;
                     case 61:
                         me->GetMotionMaster()->MoveCharge(-8057.1f, 1470.32f, 2.61f, 6);
-                        if (player->IsInRange(me, 0, 15))
+                        // CheckEventFail() already failed anyone who left the event area
+                        // (65y around the trigger, ~145y from here at worst), so anyone
+                        // still on the quest earned the credit — a 15y check around
+                        // Anachronos at the gate silently skipped players watching from
+                        // the Crystalline Tear where the event starts.
+                        if (player->IsInRange(me, 0, 150))
                             player->GroupEventHappens(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD, me);
                         break;
                     case 62:
@@ -889,11 +897,11 @@ public:
         {
             if (Creature* trigger = go->FindNearestCreature(15454, 100, player))
             {
-                Unit* Merithra = trigger->SummonCreature(15378, -8034.535f, 1535.14f, 2.61f, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                Unit* Caelestrasz = trigger->SummonCreature(15379, -8032.767f, 1533.148f, 2.61f, 1.5f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                Unit* Arygos = trigger->SummonCreature(15380, -8034.52f, 1537.843f, 2.61f, 5.7f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                /* Unit* Fandral = */ trigger->SummonCreature(15382, -8028.462f, 1535.843f, 2.61f, 3.141592f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                Creature* Anachronos = trigger->SummonCreature(15381, -8028.75f, 1538.795f, 2.61f, 4, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                Unit* Merithra = trigger->SummonCreature(15378, -8034.535f, 1535.14f, 2.61f, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
+                Unit* Caelestrasz = trigger->SummonCreature(15379, -8032.767f, 1533.148f, 2.61f, 1.5f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
+                Unit* Arygos = trigger->SummonCreature(15380, -8034.52f, 1537.843f, 2.61f, 5.7f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
+                /* Unit* Fandral = */ trigger->SummonCreature(15382, -8028.462f, 1535.843f, 2.61f, 3.141592f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
+                Creature* Anachronos = trigger->SummonCreature(15381, -8028.75f, 1538.795f, 2.61f, 4, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
 
                 if (Merithra)
                 {
