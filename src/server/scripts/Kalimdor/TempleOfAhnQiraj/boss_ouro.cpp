@@ -80,7 +80,7 @@ struct npc_ouro_spawner : public ScriptedAI
             if (InstanceScript* instance = me->GetInstanceScript())
             {
                 Creature* ouro = instance->GetCreature(DATA_OURO);
-                if (instance->GetBossState(DATA_OURO) != IN_PROGRESS && !ouro)
+                if (instance->GetBossState(DATA_OURO) != IN_PROGRESS && instance->GetBossState(DATA_OURO) != DONE && !ouro)
                 {
                     DoCastSelf(SPELL_SUMMON_OURO);
                     hasSummoned = true;
@@ -93,11 +93,15 @@ struct npc_ouro_spawner : public ScriptedAI
 
     void JustSummoned(Creature* creature) override
     {
-        // Despawn when Ouro is spawned
+        // Despawn when Ouro is spawned — but come back after a while instead
+        // of never: if the attempt fails (evade or wipe in either phase),
+        // the room needs a spawner again or Ouro is unobtainable until the
+        // instance resets. Re-summoning is gated on the boss state above, so
+        // an early respawn cannot double-spawn him.
         if (creature->GetEntry() == NPC_OURO)
         {
             creature->SetInCombatWithZone();
-            me->DespawnOrUnsummon();
+            me->DespawnOrUnsummon(0s, 300s);
         }
     }
 };
@@ -232,7 +236,11 @@ struct boss_ouro : public BossAI
                 {
                     Submerge();
                 })
-            .Schedule(3s, GROUP_PHASE_TRANSITION, [this](TaskContext context)
+            // 30s grace before the no-melee check starts: emerge's Ground
+            // Rupture knocks the whole raid out of melee range of a rooted
+            // boss, and starting this at 3s let him submerge ~13s after
+            // spawning before anyone could path back in.
+            .Schedule(30s, GROUP_PHASE_TRANSITION, [this](TaskContext context)
                 {
                     if (_enraged)
                         return;
@@ -333,6 +341,12 @@ struct npc_dirt_mound : ScriptedAI
         DoZoneInCombat();
         scheduler.Schedule(30s, [this](TaskContext /*context*/)
         {
+            // The mound carrying the Ouro respawn aura must never despawn
+            // itself: its 30s scarab timer races the aura's re-summon, and
+            // losing that race erased Ouro for the rest of the lockout.
+            if (me->HasAura(SPELL_SUMMON_OURO_AURA))
+                return;
+
             DoCastSelf(SPELL_SUMMON_SCARABS, true);
             me->DespawnOrUnsummon(1s);
         })
