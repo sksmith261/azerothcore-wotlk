@@ -256,11 +256,11 @@ struct boss_twinemperorsAI : public BossAI
             })
             .Schedule(3600ms, [this](TaskContext context) // according to sniffs it should be casted by both emperors.
             {
-                if (Creature* twin = GetTwin())
-                {
-                    if (me->IsWithinDist(twin, 60.f))
-                        DoCast(twin, SPELL_HEAL_BROTHER, true);
-                }
+                // Reizan: Heal Brother disabled. The mutual heal makes the
+                // fight unwinnable unless the twins are kept 60y apart at all
+                // times, which playerbot raids cannot maintain reliably
+                // through the teleport swaps. With the heal gone, separation
+                // is a nicety instead of a hard requirement.
 
                 context.Repeat();
             });
