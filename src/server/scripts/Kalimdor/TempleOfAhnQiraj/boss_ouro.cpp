@@ -162,19 +162,27 @@ struct boss_ouro : public BossAI
         }
 
         DoCastSelf(SPELL_SUMMON_OURO_MOUNDS, true);
-        // According to sniffs, Ouro uses his mounds to respawn. The health management could be a little scuffed.
-        std::list<Creature*> ouroMounds;
-        me->GetCreatureListWithEntryInGrid(ouroMounds, NPC_DIRT_MOUND, 200.f);
-        if (!ouroMounds.empty()) // This can't be possible, but just to be sure.
-        {
-            if (Creature* mound = Acore::Containers::SelectRandomContainerElement(ouroMounds))
-            {
-                mound->AddAura(SPELL_SUMMON_OURO_AURA, mound);
-                mound->AI()->SetData(DATA_OURO_HEALTH, me->GetHealth());
-            }
-        }
 
-        me->DespawnOrUnsummon(1s);
+        // Reizan: scripted emerge. Upstream despawned Ouro here and handed
+        // his health to a random mound via SPELL_SUMMON_OURO_AURA, trusting
+        // that aura chain to re-summon him; any broken link (mound evade,
+        // despawn race, dead aura) erased the boss until the instance reset.
+        // He now never leaves the world — invisible, untargetable, passive
+        // for the 30s submerge — and the script itself surfaces him under a
+        // random raider. Threat and health carry over for free.
+        me->SetVisible(false);
+
+        scheduler.Schedule(30s, GROUP_PHASE_TRANSITION, [this](TaskContext /*context*/)
+        {
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
+                me->NearTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(),
+                                   me->GetOrientation());
+
+            me->SetVisible(true);
+            me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+            _submerged = false;
+            Emerge();
+        });
     }
 
     void CastGroundRupture()
