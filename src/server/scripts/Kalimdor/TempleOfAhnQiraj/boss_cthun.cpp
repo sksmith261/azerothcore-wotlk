@@ -800,13 +800,9 @@ struct npc_giant_eye_tentacle : public ScriptedAI
         scheduler.Schedule(500ms, [this](TaskContext /*task*/)
         {
             DoCastAOE(SPELL_MASSIVE_GROUND_RUPTURE);
-        }).Schedule(1s, 5s, [this](TaskContext context)
-        {
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, NotInStomachSelector()))
-                DoCast(target, SPELL_GREEN_BEAM);
-
-            context.Repeat(2100ms);
         });
+        // Reizan: Giant Eye Tentacle chain beam disabled, same treatment as
+        // the Eye of C'Thun's P1 beam. Massive Ground Rupture stays.
     }
 
     void JustEngagedWith(Unit* /*who*/) override
