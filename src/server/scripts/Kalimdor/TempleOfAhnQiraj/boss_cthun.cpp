@@ -208,9 +208,7 @@ struct boss_eye_of_cthun : public BossAI
             {
                 if (task.GetRepeatCounter() < 3 && onEngage)
                 {
-                    if (Unit* target = ObjectAccessor::GetUnit(*me, _beamTarget))
-                        DoCast(target, SPELL_GREEN_BEAM);
-
+                    // Reizan: Eye Beam disabled (engage burst removed).
                     task.Repeat();
                 }
                 else
@@ -219,7 +217,8 @@ struct boss_eye_of_cthun : public BossAI
                     {
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         {
-                            DoCast(target, SPELL_GREEN_BEAM);
+                            // Reizan: Eye Beam disabled; target selection kept
+                            // so Dark Glare still aims at a random raider.
                             DarkGlareAngle = me->GetAngle(target); //keep as the location dark glare will be at
                         }
 
