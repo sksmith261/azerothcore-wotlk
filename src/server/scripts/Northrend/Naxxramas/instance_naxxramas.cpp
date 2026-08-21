@@ -497,11 +497,29 @@ public:
                 _heiganAchievement = false;
                 return;
             case DATA_HEIGAN_ERUPTION:
+                // Reizan: mirror boss_heigan's ping-pong so GetData can predict
+                // the NEXT safe section. The playerbot module reads it to dance
+                // server-side (bots cannot see the eruption GO animations).
+                // Update rule matches the boss exactly, so the mirror stays
+                // correct across waves, phase switches, and wipes.
+                if (data == 3)
+                    _heiganRight = false;
+                else if (data == 0)
+                    _heiganRight = true;
+                _heiganNextSafeSection = _heiganRight ? data + 1 : data - 1;
                 HeiganEruptSections(data);
                 return;
             default:
                 return;
         }
+    }
+
+    uint32 GetData(uint32 id) const override
+    {
+        if (id == DATA_HEIGAN_ERUPTION)
+            return _heiganNextSafeSection;
+
+        return 0;
     }
 
     bool SetBossState(uint32 bossId, EncounterState state) override
@@ -771,6 +789,8 @@ private:
     bool _loathebAchievement;
     bool _sapphironAchievement;
     bool _heiganAchievement;
+    uint32 _heiganNextSafeSection{0};
+    bool _heiganRight{true};
     bool _horsemanAchievement;
 };
 
